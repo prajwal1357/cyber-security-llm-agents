@@ -19,6 +19,7 @@ CALDERA_API_KEY = os.getenv("CALDERA_API_KEY")
 
 OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
 
 # Optionally, convert string values to the appropriate type if needed (e.g., integers)
 WEB_SERVER_PORT = int(WEB_SERVER_PORT) if WEB_SERVER_PORT else 8800
