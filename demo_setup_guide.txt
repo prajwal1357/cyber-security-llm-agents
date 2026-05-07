@@ -1,0 +1,102 @@
+# =======================================================================
+# COLLEGE DEMO SETUP GUIDE: Cyber-Security LLM Agents
+# =======================================================================
+# Run these commands in your terminal (PowerShell/CMD) step-by-step.
+
+# -----------------------------------------------------------------------
+# STEP 1: SETUP OLLAMA (LOCAL AI)
+# -----------------------------------------------------------------------
+# 1. Download and install Ollama from https://ollama.com/download if you haven't already.
+# 2. Open a terminal and download the llama3.1 model:
+ollama pull llama3.1
+
+# (Keep Ollama running in the background)
+
+
+# -----------------------------------------------------------------------
+# STEP 2: SETUP MITRE CALDERA
+# -----------------------------------------------------------------------
+# 1. Open a new terminal and navigate to your main working directory.
+# 2. Clone Caldera (The --recursive flag is CRITICAL to download plugins)
+git clone https://github.com/mitre/caldera.git --recursive
+
+# 3. Enter the Caldera directory and install dependencies
+cd caldera
+pip install -r requirements.txt
+
+# 4. Fix Python 3.10+ compatibility issue with aioftp
+pip install aioftp==0.21.4
+
+# 5. Create a local config to define your custom API Key
+# (If using PowerShell, you can just manually create caldera\conf\local.yml)
+# and paste this exact line inside it:
+# api_key_red: "caldera_secret_key"
+
+# 6. Start the Caldera Server
+python server.py --insecure
+# (Leave this terminal open so Caldera keeps running)
+
+
+# -----------------------------------------------------------------------
+# STEP 3: SETUP CYBER-SECURITY-LLM-AGENTS
+# -----------------------------------------------------------------------
+# 1. Open a fresh terminal and navigate to your main working directory.
+# 2. Clone your project
+git clone https://github.com/prajwal1357/cyber-security-llm-agents.git
+
+# 3. Enter the directory and install dependencies
+cd cyber-security-llm-agents
+pip install -r requirements.txt
+
+# 4. CRITICAL FIX: Downgrade pyautogen. The code was written for an older API version.
+pip install pyautogen==0.2.27
+
+# 5. Create your environment file
+copy .env_template .env
+
+
+# -----------------------------------------------------------------------
+# STEP 4: APPLY CODE & CONFIG FIXES
+# -----------------------------------------------------------------------
+# You must manually edit 4 files in the `cyber-security-llm-agents` folder:
+
+# A) Edit `.env`
+# Replace the contents to route everything locally:
+# CALDERA_SERVER = "http://127.0.0.1:8888"
+# CALDERA_API_KEY = "caldera_secret_key"
+# OPENAI_MODEL_NAME = "llama3.1"
+# OPENAI_API_KEY = "ollama"
+# OPENAI_BASE_URL = "http://127.0.0.1:11434/v1"
+
+# B) Edit `utils/constants.py`
+# Under line 21, add a new line to read the Base URL:
+# OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
+
+# C) Edit `utils/shared_config.py`
+# Around line 10, add the base_url to the llm_config dictionary so it looks like this:
+# llm_config = {
+#     "model": utils.constants.OPENAI_MODEL_NAME,
+#     "api_key": utils.constants.OPENAI_API_KEY,
+#     "base_url": utils.constants.OPENAI_BASE_URL,
+#     "cache_seed": None,
+# }
+
+# D) Edit `tools/web_tools.py` (Windows UTF-8 Crash Fix)
+# Around line 47, inside the download_web_page function, add `encoding="utf-8",`
+# so the check_output call looks like this:
+# raw_output = subprocess.check_output(
+#     f"curl -sS {url}",
+#     shell=True,
+#     stderr=subprocess.STDOUT,
+#     text=True,
+#     encoding="utf-8",
+# )
+
+
+# -----------------------------------------------------------------------
+# STEP 5: RUN THE DEMO
+# -----------------------------------------------------------------------
+# Ensure Ollama and Caldera are running in the background.
+# Inside the cyber-security-llm-agents terminal, run:
+
+python run_agents.py TTP_REPORT_TO_TECHNIQUES
