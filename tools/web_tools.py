@@ -44,6 +44,7 @@ def download_web_page(
         shell=True,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="utf-8",
     )
 
     soup = BeautifulSoup(raw_output, "html.parser")
